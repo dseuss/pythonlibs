@@ -46,7 +46,7 @@ class Monitor(object):
             carrets = (self._current * self._size) // \
                     self._total if self._current < self._total else self._size
             statusmsg = ('{0:' + str(_nr_digits(self._total)) + '}/{1}').format(self._current, self._total)
-            msg = ''.join(('<', carrets * '=', (self._size - carrets) * ' ', '>  ', statusmsg))
+            msg = ''.join(('[', carrets * '=', (self._size - carrets) * ' ', ']  ', statusmsg))
             print "\r" + str(msg),
             sys.stdout.flush()
         else:

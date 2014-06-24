@@ -20,6 +20,7 @@ class Timer(object):
 
         """
         self._msg = msg
+        self._start = None
 
     def __enter__(self):
         self._start = time()

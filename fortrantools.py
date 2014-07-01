@@ -9,7 +9,8 @@ def str_complex(c, kindstr=''):
     (Re c, Im c). If c is iterable, it returns a string of the form
     [(Re c_1, Im c_1), ...].
 
-    :c: Number/Iterable to print
+    :param c: Number/Iterable to print
+    :param kindstr: Additional kind qualifier to append (default None)
     :returns: String in Fortran format
 
     >>> str_complex(1)

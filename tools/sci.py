@@ -6,7 +6,7 @@ import numpy as np
 from scipy.integrate import ode
 
 
-def zodeint(func, y0, t):
+def zodeint(func, y0, t, **kwargs):
     """Simple wraper around scipy.integrate.ode for complex valued problems.
 
     :param func: Right hand side of the equation dy/dt = f(t, y)
@@ -15,8 +15,9 @@ def zodeint(func, y0, t):
     :returns: y[len(t), len(y0)]
 
     """
+    y0 = np.array([y0]) if np.isscalar(y0) else y0
     integrator = ode(func) \
-            .set_integrator('zvode', with_jacobian=False) \
+            .set_integrator('zvode', with_jacobian=False, **kwargs) \
             .set_initial_value(y0)
 
     y = np.empty((len(t), len(y0)), dtype=complex)

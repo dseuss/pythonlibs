@@ -3,7 +3,7 @@ import numpy as np
 import scipy.sparse as sp
 from itertools import product
 
-import physics.qustat as qs
+import physics.qstat as qs
 
 
 @pytest.mark.parametrize("nr_fermions", range(1, 10))

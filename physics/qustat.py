@@ -25,6 +25,42 @@ def tensor(xs, kronfun=np.kron):
     return res
 
 
+def embed(op, pos, full_space, kronfun=np.kron, identity=np.identity):
+    """Returns the matrix representaion of the embeding
+
+                    I * ... * I * op * I ... * I
+
+    for the operator `op` in a larger product Hilbert space. The total space
+    is determined by `full_space`:
+        - if `full_space` is list-like, the i-th entry of `full_space` gives
+          the dimension of the i-th factor space.
+        - otherwise we assume `full_space` is a number giving the total number
+          of factor spaces, where each has the same dimension as the space
+          `op` is acting on
+
+    :param op: n*n array; the operator to be embeded
+    :param pos: integer; the factor space in which `op` is embeded
+    :param full_space: either list-like; each entry gives the dimension of the
+                       respective factor space. Then we need to have
+                            full_space[pos] == op.shape[0]
+                       or integer; total number of factor spaces, then
+                            full_space > pos
+    :param kronfun: Kronecker product implementation to use (default np.kron)
+    :param identity: Identity-matrix implementation (default np.identity)
+    :returns: Array of size prod_j full_space[j] (or op.shape[0]^full_space)
+
+    """
+    # If we dont pass a dimension list, create one and call again
+    if not hasattr(full_space, '__iter__'):
+        dims = (np.shape(op)[0],) * full_space
+        return embed(op, pos, dims, kronfun, identity)
+
+    if np.shape(op)[0] != full_space[pos]:
+        raise IndexError("qustat.py:embed: Dimensions do not match.")
+
+    idmatrices = [identity(dim) for dim in full_space]
+    return tensor(idmatrices[:pos] + [op] + idmatrices[pos + 1:], kronfun)
+
 ######################################
 #  Bosonic manybody quantum systems  #
 ######################################

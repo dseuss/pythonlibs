@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding: utf-8
 """Rountines to deal with quantum statistics of bosons and fermions"""
 
 from __future__ import division, print_function
@@ -13,11 +12,11 @@ import scipy.sparse as sp
 def tensor(xs, kronfun=np.kron):
     """Compute the vector represenation of the tensor product
 
-                        xs[0] ⊗  xs[1] ⊗  … ⊗  xs[-1].
+                        xs[0] * xs[1] *  ... * xs[-1].
 
     :param xs: List of vectors
     :param kronfun: Kronecker product implementation to use (default np.kron)
-    :returns: Vector of size Π_j len(xs[j])
+    :returns: Vector of size prod_j len(xs[j])
 
     """
     res = np.asarray([1])
@@ -32,7 +31,7 @@ def tensor(xs, kronfun=np.kron):
 def symmtensor(xs):
     """Compute vector representation of the symmetrized tensor product
 
-              1/n! * Σ_σ (xs[σ_0] ⊗  xs[σ_1] ⊗  … ⊗  xs[σ_n])
+              1/n! * sum_p (xs[p_0] * xs[p_1] * ... * xs[p_n])
 
     where the sum extends over all permutations of [1..n]
     :param xs: Array-like of n vectors of idendical size
@@ -77,10 +76,10 @@ def wedgetensor(xs):
     """Compute the vector representation wedge product (antisymmetrized
     tensor product)
 
-        xs[0] Λ xs[1] Λ … Λ xs[n]
-                  = 1/n! * Σ_σ sign(σ) * (xs[σ_0] ⊗  xs[σ_1] ⊗  … ⊗  xs[σ_n])
+        xs[0] ^ xs[1] ^ ... ^ xs[n]
+                = 1/n! * sum_p sign(p) * (xs[p_0] * xs[p_1] * ... * xs[p_n])
 
-    where the sum extends over all permutations of [1..n] and sign(σ) is the
+    where the sum extends over all permutations of [1..n] and sign(p) is the
     permutation's signature.
 
     :param xs: Array-like of n vectors of identical size
@@ -95,19 +94,19 @@ def wedgetensor(xs):
 def annhilation_operators(nr_fermions):
     """Compute the sparse-matrix representations of the annhilators d_j of
     a `nr_fermions` fermion system. Due to the cannonical anticommutator
-    relations {d_i, d†_j} = δ_ij, the matrix elements in the basis
+    relations {d_i, adj(d)_j} = delta_ij, the matrix elements in the basis
 
-                (|0,0,…,0> , |1,0,…,0>, ..., |1,…,1,1>),
+                (|0,0,...,0> , |1,0,...,0>, ..., |1,...,1,1>),
 
     where (let N = `nr_fermions`)
 
-                |n_1,…,n_N> = d†_1^n_1 … d†_N^n_N |0,0,…,0>,
+            |n_1,...,n_N> = adj(d)_1^n_1 ... adj(d)_N^n_N |0,0,...,0>,
 
     have to be calculated as Kronecker products
 
-                d_j = η ⊗  η ⊗  … ⊗  d ⊗  I ⊗  … ⊗  I.
+                d_j = eta * eta * ... * d * I * ... * I.
 
-    Here, I = diag(1, 1); η = diag(1, -1); and d = ((0, 1), (0, 0)).
+    Here, I = diag(1, 1); eta = diag(1, -1); and d = ((0, 1), (0, 0)).
 
     :param nr_fermions: Number of fermions to consider
     :returns: List of length N, where the n-th entry is the sparse matrix

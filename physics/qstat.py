@@ -61,6 +61,7 @@ def embed(op, pos, full_space, kronfun=np.kron, identity=np.identity):
     idmatrices = [identity(dim) for dim in full_space]
     return tensor(idmatrices[:pos] + [op] + idmatrices[pos + 1:], kronfun)
 
+
 ######################################
 #  Bosonic manybody quantum systems  #
 ######################################
@@ -150,7 +151,7 @@ def annhilation_operators(nr_fermions):
 
     """
     iden = sp.identity(2)
-    eta = sp.diags((1, -1), 0)
+    eta = sp.spdiags([[1, -1]], [0], 2, 2)
     annh = sp.csr_matrix([[0, 1], [0, 0]])
     res = [tensor([eta]*n + [annh] + [iden]*(nr_fermions-1-n), sp.kron).tocsr()
            for n in range(nr_fermions)]

@@ -4,7 +4,7 @@
 
 from __future__ import division, print_function
 import numpy as np
-import matplotlib.pyplot as pl
+from matplotlib import pyplot as pl
 
 
 def plot(function, intervall, num=500, axis=None, **kwargs):
@@ -23,3 +23,20 @@ def plot(function, intervall, num=500, axis=None, **kwargs):
         x = np.linspace(*intervall, num=num)
         axis = pl.gca() if axis is None else axis
         return axis.plot(x, function(x), **kwargs)
+
+
+def imshow(img, **kwargs):
+    """Shows the image `img` passed as numpy array in a much prettier way
+
+    :param np.ndarray img: Image to show passed as RGB or grayscale image
+
+    """
+    fig = pl.figure(0)
+    ax = fig.add_subplot(111, autoscale_on=False)
+    ax.grid(False)
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+
+    pl.imshow(img, **kwargs)
+    pl.axis((0, img.shape[1], img.shape[0], 0))
+    pl.show()

@@ -25,14 +25,13 @@ def plot(function, intervall, num=500, axis=None, **kwargs):
         return axis.plot(x, function(x), **kwargs)
 
 
-def imshow(img, **kwargs):
+def imshow(img, ax=None, **kwargs):
     """Shows the image `img` passed as numpy array in a much prettier way
 
     :param np.ndarray img: Image to show passed as RGB or grayscale image
 
     """
-    fig = pl.figure(0)
-    ax = fig.add_subplot(111, autoscale_on=False)
+    ax = ax if ax is not None else pl.gca()
     ax.grid(False)
     ax.set_xticklabels([])
     ax.set_yticklabels([])

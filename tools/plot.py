@@ -3,8 +3,11 @@
 """Tools making everyday plotting tasks easier."""
 
 from __future__ import division, print_function
-import numpy as np
+
+from itertools import izip
 from matplotlib import pyplot as pl
+
+import numpy as np
 
 
 def plot(function, intervall, num=500, axis=None, **kwargs):
@@ -25,17 +28,48 @@ def plot(function, intervall, num=500, axis=None, **kwargs):
         return axis.plot(x, function(x), **kwargs)
 
 
-def imshow(img, ax=None, **kwargs):
+def imshow(img, ax=None, show=True, **kwargs):
     """Shows the image `img` passed as numpy array in a much prettier way
 
     :param np.ndarray img: Image to show passed as RGB or grayscale image
+    :param ax: Axis to use for plot (default: current axis)
+    :param bool show: Whether to call pl.show() afterwards
 
     """
-    ax = ax if ax is not None else pl.gca()
+    if ax is None:
+        ax = pl.gca()
+
     ax.grid(False)
     ax.set_xticklabels([])
     ax.set_yticklabels([])
 
-    pl.imshow(img, **kwargs)
-    pl.axis((0, img.shape[1], img.shape[0], 0))
-    pl.show()
+    ax.imshow(img, **kwargs)
+    ax.axis((0, img.shape[1], img.shape[0], 0))
+    if show:
+        pl.show()
+
+
+def imsshow(imgs, layout='h', show=True, **kwargs):
+    """Plots a grid of images
+
+    :param imgs: List of images as 2D arrays
+    :param layout: 'h' for horizontal layout; 'v' for vertical
+    :param bool show: Whether to call pl.show() afterwards
+    :param kwargs: Further parameteres for imshow
+    :returns: List of axes
+
+    """
+    if layout == 'h':
+        axlist = [pl.subplot(1, len(imgs), i + 1) for i in range(len(imgs))]
+    elif layout == 'v':
+        axlist = [pl.subplot(len(imgs), 1, i + 1) for i in range(len(imgs))]
+    else:
+        raise AttributeError(str(layout) + " is not a valid layout.")
+
+    for ax, img in izip(axlist, imgs):
+        imshow(img, ax=ax, show=False)
+
+    if show:
+        pl.show()
+
+    return axlist

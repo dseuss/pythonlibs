@@ -28,6 +28,24 @@ def plot(function, intervall, num=500, axis=None, **kwargs):
         return axis.plot(x, function(x), **kwargs)
 
 
+def _imshow_formater(arr):
+    """Creates a formating function to show the values of imshow in the status
+    bar.
+
+    :param arr: Array to be shown
+    :returns: function formater(x, y) that should be set to ax.format_coord
+
+    """
+    def format_coord(x, y):
+        col, row = int(x + .5), int(y + .5)
+        if (col >= 0) and (col < arr.shape[1]) \
+                and (row >= 0) and (row < arr.shape[0]):
+            return "x={}, y={}, val={}".format(col, row, arr[row, col])
+        else:
+            return "x={}, y={}".format(col, row)
+    return format_coord
+
+
 def imshow(img, ax=None, show=True, **kwargs):
     """Shows the image `img` passed as numpy array in a much prettier way
 
@@ -45,6 +63,7 @@ def imshow(img, ax=None, show=True, **kwargs):
 
     ax.imshow(img, **kwargs)
     ax.axis((0, img.shape[1], img.shape[0], 0))
+    ax.format_coord = _imshow_formater(img)
     if show:
         pl.show()
 
@@ -68,6 +87,7 @@ def imsshow(imgs, layout='h', show=True, **kwargs):
 
     for ax, img in izip(axlist, imgs):
         imshow(img, ax=ax, show=False)
+        ax.format_coord = _imshow_formater(img)
 
     if show:
         pl.show()

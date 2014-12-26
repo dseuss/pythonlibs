@@ -82,7 +82,7 @@ class Progress(object):
             else:
                 carrets = self._size
 
-            statusmsg = ('{0:' + str(_nr_digits(self._total)) + '}/{1} {}')\
+            statusmsg = ('{0:' + str(_nr_digits(self._total)) + '}/{1} {2}')\
                     .format(self._current, self._total, self._message)
             msg = ''.join(('[', carrets * '=', (self._size - carrets) * ' ', ']  ', statusmsg))
             print "\r" + str(msg),

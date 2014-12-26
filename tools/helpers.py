@@ -57,7 +57,7 @@ class Progress(object):
     """
     # TODO make python3 compatible
 
-    def __init__(self, iterable, size=50):
+    def __init__(self, iterable, message='', size=50):
         """
         :param iterable: Iteratable object to loop over
         :param size: Number of characters for the progress bar (default 50).
@@ -67,6 +67,7 @@ class Progress(object):
         self._total = len(iterable)
         self._size = size
         self._current = 0
+        self._message = message
 
     def __iter__(self):
         return self
@@ -81,8 +82,8 @@ class Progress(object):
             else:
                 carrets = self._size
 
-            statusmsg = ('{0:' + str(_nr_digits(self._total)) + '}/{1}')\
-                    .format(self._current, self._total)
+            statusmsg = ('{0:' + str(_nr_digits(self._total)) + '}/{1} {}')\
+                    .format(self._current, self._total, self._message)
             msg = ''.join(('[', carrets * '=', (self._size - carrets) * ' ', ']  ', statusmsg))
             print "\r" + str(msg),
             sys.stdout.flush()

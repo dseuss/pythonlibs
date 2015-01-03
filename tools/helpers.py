@@ -5,6 +5,7 @@
 from __future__ import division
 
 import os
+import subprocess
 import sys
 from time import time
 
@@ -110,7 +111,16 @@ def getch():
             try:
                 c = sys.stdin.read(1)
                 return c
-            except IOError: pass
+            except IOError:
+                pass
     finally:
         termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
         fcntl.fcntl(fd, fcntl.F_SETFL, oldflags)
+
+
+def get_git_revision_hash():
+    return subprocess.check_output(['git', 'rev-parse', 'HEAD']).split()[0]
+
+
+def get_git_revision_short_hash():
+    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).split()[0]

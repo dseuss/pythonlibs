@@ -124,3 +124,12 @@ def get_git_revision_hash():
 
 def get_git_revision_short_hash():
     return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).split()[0]
+
+
+def mkdir(dirname):
+    """Create dir if it doesnt exist."""
+    try:
+        os.makedirs(dirname)
+    except OSError as exception:
+        if exception.errno != os.errno.EEXIST:
+            raise

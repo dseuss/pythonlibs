@@ -110,7 +110,7 @@ def _to_hashfilename(func, args, kwargs):
     argstr = '_'.join("{}={}".format(key, val) for key, val in argdict.iteritems())
 
     rawname = '_'.join((filehash, sourcehash, argstr))
-    return base64.urlsafe_b64encode(rawname + '.pkl')
+    return base64.urlsafe_b64encode(rawname) + '.pkl'
 
 
 def cached_filefunc(func):

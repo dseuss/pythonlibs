@@ -52,20 +52,22 @@ def imshow(img, ax=None, show=True, **kwargs):
     :param np.ndarray img: Image to show passed as RGB or grayscale image
     :param ax: Axis to use for plot (default: current axis)
     :param bool show: Whether to call pl.show() afterwards
+    :param kwargs: Keyword arguments passed to imshow
 
     """
     if ax is None:
         ax = pl.gca()
 
     ax.grid(False)
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
+    # ax.set_xticklabels([])
+    # ax.set_yticklabels([])
 
-    ax.imshow(img, **kwargs)
-    ax.axis((0, img.shape[1], img.shape[0], 0))
+    res = ax.imshow(img, **kwargs)
+    ax.axis((-.5, img.shape[1] - .5, img.shape[0] - .5, -.5))
     ax.format_coord = _imshow_formater(img)
     if show:
         pl.show()
+    return res
 
 
 def imsshow(imgs, layout='h', show=True, **kwargs):
@@ -74,7 +76,7 @@ def imsshow(imgs, layout='h', show=True, **kwargs):
     :param imgs: List of images as 2D arrays
     :param layout: 'h' for horizontal layout; 'v' for vertical
     :param bool show: Whether to call pl.show() afterwards
-    :param kwargs: Further parameteres for imshow
+    :param kwargs: Keyword arguments passed to imshow
     :returns: List of axes
 
     """
@@ -86,10 +88,20 @@ def imsshow(imgs, layout='h', show=True, **kwargs):
         raise AttributeError(str(layout) + " is not a valid layout.")
 
     for ax, img in izip(axlist, imgs):
-        imshow(img, ax=ax, show=False)
+        imshow(img, ax=ax, show=False, **kwargs)
         ax.format_coord = _imshow_formater(img)
 
     if show:
         pl.show()
 
     return axlist
+
+
+def rgb2gray(img):
+    """Converts a RGB encoded image to grayscale
+
+    :param img: n-dim Array, with the last dimension of size 3 encoding RGB
+    :returns: (n-1) dim Array of shape img.shape[:-1]
+
+    """
+    return np.dot(img, (0.2989, 0.5870, 0.1140))

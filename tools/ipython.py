@@ -17,7 +17,7 @@ def wait_interactive(job):
             and __len__
 
     """
-    widgets = [pb.Percentage(), ' ', pb.Bar(), ' ', pb.ETA()]
+    widgets = [pb.Counter(), '/{}'.format(len(job)), ' ', pb.Bar(), ' ', pb.ETA()]
     bar = pb.ProgressBar(maxval=len(job), widgets=widgets)
     bar.start()
 

@@ -28,3 +28,9 @@ def wait_interactive(job):
 
     bar.finish()
     rprint("\r\x1b[31m" + bar._format_line() + "\x1b[0m", end="")
+
+
+def sprint(msg):
+    """Same as print, but also prints to the ipython system output"""
+    print(msg)
+    rprint("\r\x1b[31m" + msg + "\x1b[0m")

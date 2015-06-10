@@ -22,7 +22,7 @@ def wait_interactive(job):
     bar.start()
 
     while not job.ready():
-        sleep(1)
+        sleep(60)
         bar.update(job.progress)
         rprint("\r\x1b[31m" + bar._format_line() + "\x1b[0m", end="")
 

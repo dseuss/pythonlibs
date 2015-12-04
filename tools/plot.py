@@ -6,6 +6,7 @@ from __future__ import division, print_function
 
 from itertools import izip
 from matplotlib import pyplot as pl
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import numpy as np
 
@@ -105,3 +106,36 @@ def rgb2gray(img):
 
     """
     return np.dot(img, (0.2989, 0.5870, 0.1140))
+
+
+def matshow(mat, ax=None, show=True, **kwargs):
+    """Shows the real matrix mat as img -- similar to imshow, but with
+    different defaults
+
+    :param np.ndarray img: Image to show passed as RGB or grayscale image
+    :param ax: Axis to use for plot (default: current axis)
+    :param bool show: Whether to call pl.show() afterwards
+    :param kwargs: Keyword arguments passed to imshow
+
+    """
+    if ax is None:
+        ax = pl.gca()
+
+    ax.grid(False)
+    # ax.set_xticklabels([])
+    # ax.set_yticklabels([])
+
+    res = ax.imshow(mat, interpolation='nearest', **kwargs)
+    ax.axis((-.5, mat.shape[1] - .5, mat.shape[0] - .5, -.5))
+    ax.format_coord = _imshow_formater(mat)
+
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    cb = pl.colorbar(res, cax=cax)
+    cb.ax.tick_params(axis='y', direction='out')
+
+    if show:
+        pl.show()
+    return res
+
+

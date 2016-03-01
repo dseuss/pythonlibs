@@ -11,7 +11,7 @@ import numpy as np
 from scipy.linalg import qr, eigvals
 
 
-def goe(dim, randn=np.random.randn):
+def orthogonal(dim, randn=np.random.randn):
     """Returns a sample from the Gaussian orthogonal ensemble of given
     dimension.  (i.e. the haar measure on U(dim)).
 
@@ -27,7 +27,7 @@ def goe(dim, randn=np.random.randn):
     return q * ph
 
 
-def gue(dim, randn=np.random.randn):
+def unitary(dim, randn=np.random.randn):
     """Returns a sample from the Gaussian unitary ensemble of given dimension.
     (i.e. the haar measure on U(dim)).
 
@@ -46,8 +46,8 @@ def gue(dim, randn=np.random.randn):
 #############
 #  Tesing   #
 #############
-LEVEL_SPACING_DF = {'goe': lambda s: np.pi / 2 * s * np.exp(-np.pi / 4 * s**2),
-                    'gue': lambda s: 32 / np.pi**2 * s**2 * np.exp(-4 / np.pi * s**2)
+LEVEL_SPACING_DF = {'orthogonal': lambda s: np.pi / 2 * s * np.exp(-np.pi / 4 * s**2),
+                    'unitary': lambda s: 32 / np.pi**2 * s**2 * np.exp(-4 / np.pi * s**2)
                     }
 
 
@@ -72,5 +72,5 @@ def _test_ensemble(dim, ensemble, samples=1000):
     pl.show()
 
 if __name__ == '__main__':
-    _test_ensemble(50, 'gue', samples=10000)
-    _test_ensemble(50, 'goe', samples=10000)
+    _test_ensemble(50, 'unitary', samples=10000)
+    _test_ensemble(50, 'orthogonal', samples=10000)

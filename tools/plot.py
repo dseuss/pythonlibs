@@ -88,9 +88,20 @@ def imsshow(imgs, layout='h', show=True, **kwargs):
     else:
         raise AttributeError(str(layout) + " is not a valid layout.")
 
+    vmin = kwargs.pop('vmin', min(np.min(img) for img in imgs))
+    vmax = kwargs.pop('vmax', max(np.max(img) for img in imgs))
+
     for ax, img in izip(axlist, imgs):
-        imshow(img, ax=ax, show=False, **kwargs)
+        res = imshow(img, ax=ax, show=False, vmin=vmin, vmax=vmax, **kwargs)
         ax.format_coord = _imshow_formater(img)
+
+    bbox = ax.get_position()
+    bbox.x0 = .93
+    bbox.x1 = .96
+    fig = pl.gcf()
+    fig.subplots_adjust(right=0.9)
+    cax = fig.add_axes(bbox)
+    pl.colorbar(res, cax=cax)
 
     if show:
         pl.show()

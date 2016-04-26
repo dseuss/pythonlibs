@@ -14,7 +14,7 @@ import traceback
 from functools import wraps
 from multiprocessing import Process, Queue
 
-from helpers import mkdir
+from . import mkdir
 
 CACHEDIR = '.pycache'
 
@@ -88,7 +88,7 @@ def _args_to_dict(func, args):
 
     """
     argnames = func.func_code.co_varnames[:func.func_code.co_argcount]
-    return {key: val for key, val in it.izip(argnames, args)}
+    return {key: val for key, val in zip(argnames, args)}
 
 
 def _to_hashfilename(func, args, kwargs):

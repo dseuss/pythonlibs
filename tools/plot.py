@@ -4,7 +4,6 @@
 
 from __future__ import division, print_function
 
-from itertools import izip
 from matplotlib import pyplot as pl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -91,7 +90,7 @@ def imsshow(imgs, layout='h', show=True, **kwargs):
     vmin = kwargs.pop('vmin', min(np.min(img) for img in imgs))
     vmax = kwargs.pop('vmax', max(np.max(img) for img in imgs))
 
-    for ax, img in izip(axlist, imgs):
+    for ax, img in zip(axlist, imgs):
         res = imshow(img, ax=ax, show=False, vmin=vmin, vmax=vmax, **kwargs)
         ax.format_coord = _imshow_formater(img)
 

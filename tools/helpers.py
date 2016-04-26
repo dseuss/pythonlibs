@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 from time import time
+from progressbar import ProgressBar
 
 import fcntl
 import termios
@@ -47,7 +48,7 @@ def _nr_digits(number):
     return len(str(number))
 
 
-class Progress(object):
+class Progress(ProgressBar):
 
     """Progress bar for looping over iteratable object. Use as:
             for i in Monitor(...):
@@ -56,42 +57,31 @@ class Progress(object):
     a nice little progress bar. Works fine on the console as well as all
     ipython interfaces.
     """
-    # TODO make python3 compatible
 
-    def __init__(self, iterable, message='', size=50, total=None):
+    def __init__(self, iterable, *args, **kwargs):
         """
         :param iterable: Iteratable object to loop over
         :param size: Number of characters for the progress bar (default 50).
 
         """
+        try:
+            max_value = kwargs.pop('max_value', len(iterable))
+        except TypeError:
+            max_value = None
+
+        super().__init__(*args, max_value=max_value, **kwargs)
         self._iterable = iter(iterable)
-        self._total = total if total is not None else len(iterable)
-        self._size = size
         self._current = 0
-        self._message = message
+        self.start()
 
     def __iter__(self):
         return self
 
     def next(self):
         """Fetch next object from the iterable"""
-        # FIXME Make more readable
-        if self._current < self._total:
-            self._current += 1
-            if self._current < self._total:
-                carrets = (self._current * self._size) // self._total
-            else:
-                carrets = self._size
-
-            statusmsg = ('{0:' + str(_nr_digits(self._total)) + '}/{1} {2}')\
-                    .format(self._current, self._total, self._message)
-            msg = ''.join(('[', carrets * '=', (self._size - carrets) * ' ', ']  ', statusmsg))
-            print "\r" + str(msg),
-            sys.stdout.flush()
-        else:
-            print ""
-
-        return self._iterable.next()
+        self.update(self._current)
+        self._current += 1
+        return next(self._iterable)
 
 
 def getch():

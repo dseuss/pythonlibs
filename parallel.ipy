@@ -1,0 +1,4 @@
+import ipyparallel
+_clients = ipyparallel.Client()
+_view = _clients.load_balanced_view()
+print("Kernels available: {}".format(len(_clients)))

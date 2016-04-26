@@ -1,5 +1,0 @@
-from IPython import parallel
-from os import environ
-_clients = parallel.Client(cluster_id=environ.get('CLUSTER_ID', None))
-_view = _clients.load_balanced_view()
-print("Kernels available: {}".format(len(_clients)))

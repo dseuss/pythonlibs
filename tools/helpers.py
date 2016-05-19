@@ -9,6 +9,7 @@ import subprocess
 import sys
 from time import time
 from progressbar import ProgressBar
+from collections import Sequence
 
 import fcntl
 import termios
@@ -64,12 +65,11 @@ class Progress(ProgressBar):
         :param size: Number of characters for the progress bar (default 50).
 
         """
-        try:
-            max_value = kwargs.pop('max_value', len(iterable))
-        except TypeError:
-            max_value = None
+        if 'max_value' not in kwargs:
+            kwargs['max_value'] = len(iterable) if isinstance(iterable, Sequence) \
+                else None
 
-        super().__init__(*args, max_value=max_value, **kwargs)
+        super().__init__(*args, **kwargs)
         self._iterable = iter(iterable)
         self._current = 0
         self.start()

@@ -7,7 +7,7 @@ from __future__ import division
 import os
 import subprocess
 import sys
-from time import time
+from time import time, sleep
 from progressbar import ProgressBar
 from collections import Sequence
 
@@ -82,6 +82,18 @@ class Progress(ProgressBar):
         self.update(self._current)
         self._current += 1
         return next(self._iterable)
+
+
+def watch_async_view(view):
+    try:
+        bar = ProgressBar(max_value=len(view))
+        bar.start()
+        while not view.done():
+            bar.update(value=view.progress)
+            sleep(1)
+        bar.finish()
+    except KeyboardInterrupt:
+        pass
 
 
 def getch():

@@ -71,7 +71,7 @@ class CountSlice(Iterable):
             return self._steps
 
     def __iter__(self):
-        return islice(iter(self._iterable), self._steps)
+        return islice(self._iterable, self._steps)
 
 
 class RuntimeSlice(Iterable):
@@ -93,7 +93,7 @@ class RuntimeSlice(Iterable):
 
     def __iter__(self):
         starttime = time.time()
-        for val in iter(self._iterable):
+        for val in self._iterable:
             runtime = time.time() - starttime
             yield runtime, val
             if runtime > self.runtime:
@@ -133,7 +133,7 @@ class TimelyProgress(ProgressBar, Iterable):
     def __iter__(self):
         """Fetch next object from the iterable"""
         self.start()
-        for runtime, val in iter(self._iterable):
+        for runtime, val in self._iterable:
             self.update(min(runtime, self._iterable.runtime))
             yield val if not self._rettime else (runtime, val)
         self.finish()

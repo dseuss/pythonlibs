@@ -7,12 +7,14 @@ from __future__ import division
 import os
 import subprocess
 import sys
-from time import time, sleep
+import time
+import progressbar as pb
 from progressbar import ProgressBar
-from collections import Sequence
+from collections import Sequence, Iterator, Iterable
 
 import fcntl
 import termios
+from itertools import islice
 
 
 class Timer(object):
@@ -34,10 +36,10 @@ class Timer(object):
         self._start = None
 
     def __enter__(self):
-        self._start = time()
+        self._start = time.time()
 
     def __exit__(self, *args):
-        print('{}: {}s'.format(self._msg, time() - self._start))
+        print('{}: {}s'.format(self._msg, time.time() - self._start))
 
 
 def _nr_digits(number):
@@ -49,8 +51,95 @@ def _nr_digits(number):
     return len(str(number))
 
 
-class Progress(ProgressBar):
+class CountSlice(Iterable):
+    """Docstring for CountSlice. """
 
+    def __init__(self, iterable, steps):
+        """@todo: to be defined1.
+
+        :param iterable: @todo
+        :param steps: @todo
+
+        """
+        self._iterable = iterable
+        self._steps = steps
+
+    def __len__(self):
+        try:
+            return min(len(self._iterable), self._steps)
+        except TypeError:
+            return self._steps
+
+    def __iter__(self):
+        return islice(iter(self._iterable), self._steps)
+
+
+class RuntimeSlice(Iterable):
+    """Docstring for RuntimeSlice. """
+
+    def __init__(self, iterable, runtime):
+        """@todo: to be defined1.
+
+        :param iterable: @todo
+        :param runtime: @todo
+
+        """
+        self._iterable = iterable
+        self._runtime = runtime
+
+    @property
+    def runtime(self):
+        return self._runtime
+
+    def __iter__(self):
+        starttime = time.time()
+        for val in iter(self._iterable):
+            runtime = time.time() - starttime
+            yield runtime, val
+            if runtime > self.runtime:
+                raise StopIteration()
+
+
+def Progress(the_iterable, *args, **kwargs):
+    if isinstance(the_iterable, RuntimeSlice):
+        return TimelyProgress(the_iterable, *args, **kwargs)
+    else:
+        return CountProgress(the_iterable, *args, **kwargs)
+
+
+class TimelyProgress(ProgressBar, Iterable):
+    """Progress bar for looping over iteratable object. Use as:
+            for i in Monitor(...):
+                do_something
+    As long as there is no printing involved in do_something, you get
+    a nice little progress bar. Works fine on the console as well as all
+    ipython interfaces.
+    """
+
+    def __init__(self, iterable, *args, rettime=False, **kwargs):
+        """
+        :param iterable: Iteratable object to loop over
+        :param size: Number of characters for the progress bar (default 50).
+
+        """
+        maxtime = time.strftime("%H:%M:%S", time.gmtime(iterable.runtime))
+        super().__init__(*args, max_value=iterable.runtime,
+                         widgets=[pb.Percentage(), ' ', pb.Bar(), ' ',
+                                  pb.Timer(), ' / ', maxtime],
+                         **kwargs)
+        self._iterable = iterable
+        self._rettime = rettime
+
+    def __iter__(self):
+        """Fetch next object from the iterable"""
+        self.start()
+        for runtime, val in iter(self._iterable):
+            self.update(min(runtime, self._iterable.runtime))
+            yield val if not self._rettime else (runtime, val)
+        self.finish()
+
+
+class CountProgress(ProgressBar, Iterable):
     """Progress bar for looping over iteratable object. Use as:
             for i in Monitor(...):
                 do_something
@@ -66,22 +155,18 @@ class Progress(ProgressBar):
 
         """
         if 'max_value' not in kwargs:
-            kwargs['max_value'] = len(iterable) if isinstance(iterable, Sequence) \
+            kwargs['max_value'] = len(iterable) if hasattr(iterable, '__len__')\
                 else None
 
         super().__init__(*args, **kwargs)
-        self._iterable = iter(iterable)
-        self._current = 0
-        self.start()
+        self._iterable = iterable
 
     def __iter__(self):
-        return self
-
-    def next(self):
         """Fetch next object from the iterable"""
-        self.update(self._current)
-        self._current += 1
-        return next(self._iterable)
+        self.start()
+        for n, val in enumerate(self._iterable):
+            self.update(n)
+            yield val
 
 
 def watch_async_view(view):
@@ -90,7 +175,7 @@ def watch_async_view(view):
         bar.start()
         while not view.done():
             bar.update(value=view.progress)
-            sleep(1)
+            time.sleep(1)
         bar.finish()
     except KeyboardInterrupt:
         pass

@@ -169,16 +169,29 @@ class CountProgress(ProgressBar, Iterable):
             yield val
 
 
-def watch_async_view(view):
-    try:
-        bar = ProgressBar(max_value=len(view))
-        bar.start()
-        while not view.done():
-            bar.update(value=view.progress)
-            time.sleep(1)
-        bar.finish()
-    except KeyboardInterrupt:
-        pass
+class AsyncTaskWatcher(object):
+    def __init__(self):
+        self._tasks = []
+
+    def append(self, task):
+        self._tasks.append(task)
+
+    def block(self):
+        try:
+            bar = ProgressBar(max_value=sum(len(t) for t in self._tasks))
+            bar.start()
+            while not all(t.done() for t in self._tasks):
+                bar.update(value=sum(t.progress for t in self._tasks))
+                time.sleep(1)
+            bar.finish()
+        except KeyboardInterrupt:
+            pass
+
+
+def watch_async_view(task):
+    watcher = AsyncTaskWatcher()
+    watcher.append(task)
+    watcher.block()
 
 
 def getch():

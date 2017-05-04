@@ -47,7 +47,7 @@ def _imshow_formater(arr):
     return format_coord
 
 
-def imshow(img, ax=None, show=True, **kwargs):
+def imshow(img, fig=None, **kwargs):
     """Shows the image `img` passed as numpy array in a much prettier way
 
     :param np.ndarray img: Image to show passed as RGB or grayscale image
@@ -56,19 +56,12 @@ def imshow(img, ax=None, show=True, **kwargs):
     :param kwargs: Keyword arguments passed to imshow
 
     """
-    if ax is None:
-        ax = pl.gca()
-
-    ax.grid(False)
-    # ax.set_xticklabels([])
-    # ax.set_yticklabels([])
-
-    res = ax.imshow(img, **kwargs)
-    ax.axis((-.5, img.shape[1] - .5, img.shape[0] - .5, -.5))
-    ax.format_coord = _imshow_formater(img)
-    if show:
-        pl.show()
-    return res
+    assert 'interpolation' not in kwargs
+    fig = fig if fig is not None else pl.gcf()
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.axis('off')
+    ax.imshow(img, interpolation='nearest', **kwargs)
+    return fig
 
 
 def imsshow(images, grid=(5, -1), **kwargs):
@@ -125,4 +118,3 @@ def matshow(mat, ax=None, show=True, **kwargs):
     if show:
         pl.show()
     return res
-

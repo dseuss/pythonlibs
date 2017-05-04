@@ -4,10 +4,11 @@
 
 from __future__ import division, print_function
 
-from matplotlib import pyplot as pl
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+from math import ceil
 
 import numpy as np
+from matplotlib import pyplot as pl
+from mpl_toolkits.axes_grid import ImageGrid
 
 
 def plot(function, intervall, num=500, axis=None, **kwargs):
@@ -70,42 +71,19 @@ def imshow(img, ax=None, show=True, **kwargs):
     return res
 
 
-def imsshow(imgs, layout='h', show=True, **kwargs):
-    """Plots a grid of images
+def imsshow(images, grid=(5, -1), **kwargs):
+    assert any(g > 0 for g in grid)
 
-    :param imgs: List of images as 2D arrays
-    :param layout: 'h' for horizontal layout; 'v' for vertical
-    :param bool show: Whether to call pl.show() afterwards
-    :param kwargs: Keyword arguments passed to imshow
-    :returns: List of axes
+    grid_x = grid[0] if grid[0] > 0 else ceil(len(images) / grid[1])
+    grid_y = grid[1] if grid[1] > 0 else ceil(len(images) / grid[0])
 
-    """
-    if layout == 'h':
-        axlist = [pl.subplot(1, len(imgs), i + 1) for i in range(len(imgs))]
-    elif layout == 'v':
-        axlist = [pl.subplot(len(imgs), 1, i + 1) for i in range(len(imgs))]
-    else:
-        raise AttributeError(str(layout) + " is not a valid layout.")
+    axes = ImageGrid(pl.gcf(), "111", (grid_y, grid_x), share_all=True)
+    for ax, img in zip(axes, images):
+        ax.get_xaxis().set_ticks([])
+        ax.get_yaxis().set_ticks([])
+        ax.imshow(img, **kwargs)
 
-    vmin = kwargs.pop('vmin', min(np.min(img) for img in imgs))
-    vmax = kwargs.pop('vmax', max(np.max(img) for img in imgs))
-
-    for ax, img in zip(axlist, imgs):
-        res = imshow(img, ax=ax, show=False, vmin=vmin, vmax=vmax, **kwargs)
-        ax.format_coord = _imshow_formater(img)
-
-    bbox = ax.get_position()
-    bbox.x0 = .93
-    bbox.x1 = .96
-    fig = pl.gcf()
-    fig.subplots_adjust(right=0.9)
-    cax = fig.add_axes(bbox)
-    pl.colorbar(res, cax=cax)
-
-    if show:
-        pl.show()
-
-    return axlist
+    return axes
 
 
 def rgb2gray(img):
@@ -147,5 +125,4 @@ def matshow(mat, ax=None, show=True, **kwargs):
     if show:
         pl.show()
     return res
-
 

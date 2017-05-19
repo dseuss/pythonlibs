@@ -4,17 +4,17 @@
 
 from __future__ import division
 
+import fcntl
 import os
 import subprocess
 import sys
+import termios
 import time
+from collections import Iterable, namedtuple
+from itertools import islice
+
 import progressbar as pb
 from progressbar import ProgressBar
-from collections import Sequence, Iterator, Iterable
-
-import fcntl
-import termios
-from itertools import islice
 
 
 class Timer(object):
@@ -169,20 +169,44 @@ class CountProgress(ProgressBar, Iterable):
             yield val
 
 
+
 class AsyncTaskWatcher(object):
+    callback_format = namedtuple('CallbackFormat', 'function arguments timeout')
+
     def __init__(self):
         self._tasks = []
+        self._callbacks = list()
+        self._callback_timestamps = list()
+
+    def add_callback(self, function, kwargs, timeout=0):
+        new_callback = self.callback_format(function=function, arguments=kwargs,
+                                            timeout=timeout)
+        self._callbacks.append(new_callback)
 
     def append(self, task):
         self._tasks.append(task)
 
-    def block(self):
+    def _run_callbacks(self, callback_time):
+        iterator = enumerate(zip(self._callback_timestamps, self._callbacks))
+        for n, (ts, callback) in iterator:
+            if callback_time - ts > callback.timeout:
+                callback.function(**callback.arguments)
+                self._callback_timestamps[n] = time.time()
+
+
+    def block(self, timeout=1):
+        self._callback_timestamps = [0] * len(self._callbacks)
         try:
             bar = ProgressBar(max_value=sum(len(t) for t in self._tasks))
             bar.start()
             while not all(t.done() for t in self._tasks):
                 bar.update(value=sum(t.progress for t in self._tasks))
-                time.sleep(1)
+                callback_time = time.time()
+                self._run_callbacks(callback_time)
+                sleep_time = timeout - (time.time() - callback_time)
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+
             bar.finish()
         except KeyboardInterrupt:
             pass

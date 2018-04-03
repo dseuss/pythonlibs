@@ -8,7 +8,7 @@ from math import ceil
 
 import numpy as np
 from matplotlib import pyplot as pl
-from mpl_toolkits.axes_grid import ImageGrid
+from mpl_toolkits.axes_grid1 import make_axes_locatable, ImageGrid
 
 
 def plot(function, intervall, num=500, axis=None, **kwargs):
@@ -64,8 +64,11 @@ def imshow(img, fig=None, **kwargs):
     return fig
 
 
-def imsshow(images, grid=(5, -1), **kwargs):
+def imsshow(images, grid=None, **kwargs):
+    if grid is None:
+        grid = (min(len(images), 5), -1)
     assert any(g > 0 for g in grid)
+
 
     grid_x = grid[0] if grid[0] > 0 else ceil(len(images) / grid[1])
     grid_y = grid[1] if grid[1] > 0 else ceil(len(images) / grid[0])
